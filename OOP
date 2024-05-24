@@ -1,0 +1,70 @@
+import 'dart:convert';
+import 'dart:io';
+
+// Define an interface Printable
+abstract class Printable {
+  void printDetails();
+}
+
+// Base class LibraryItem
+class LibraryItem {
+  String title;
+  String author;
+
+  LibraryItem(this.title, this.author);
+
+  void display() {
+    print('Title: $title, Author: $author');
+  }
+}
+
+// Derived class Book that implements Printable
+class Book extends LibraryItem implements Printable {
+  String category;
+
+  Book(String title, String author, this.category) : super(title, author);
+
+  // Override the display method
+  @override
+  void display() {
+    print('Title: $title, Author: $author, Category: $category');
+  }
+
+  // Implement the printDetails method from Printable interface
+  @override
+  void printDetails() {
+    display();
+  }
+}
+
+// Function to read books from a file and create a list of Book instances
+Future<List<Book>> readBooksFromFile(String filename) async {
+  List<Book> books = [];
+  try {
+    final file = File(filename);
+    final contents = await file.readAsString();
+    final List<dynamic> jsonData = jsonDecode(contents);
+
+    for (var bookData in jsonData) {
+      Book book = Book(bookData['title'], bookData['author'], bookData['category']);
+      books.add(book);
+    }
+  } catch (e) {
+    print('Error reading file: $e');
+  }
+  return books;
+}
+
+// Main method demonstrating the program
+Future<void> main() async {
+  // File containing book data in JSON format
+  String filename = 'books.json';
+
+  // Initialize books from file
+  List<Book> books = await readBooksFromFile(filename);
+
+  // Demonstrate the use of a loop
+  for (Book book in books) {
+    book.printDetails();
+  }
+}
